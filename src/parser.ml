@@ -127,3 +127,12 @@ let load_machine path =
   let* json = load_json path in
   let* m = parse_machine json in
   validate_machine m
+
+let validate_input m input = 
+  let check_char c = 
+    if c = m.blank then
+      Error (Printf.sprintf "input must not contain the blank character '%c'" c)
+    else if not (List.mem c m.alphabet) then
+      Error (Printf.sprintf "input contains '%c' which is not in 'alphabet'" c)
+    else Ok c in
+  all (List.map check_char (List.of_seq (String.to_seq input)))

@@ -14,7 +14,7 @@ type machine = {
   states      : string list;
   initial     : string;
   finals      : string list;
-  transitions : (transition list * string) list;
+  transitions : (string * transition list) list;
 }
 
 type tape = {

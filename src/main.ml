@@ -10,8 +10,8 @@ let () =
   | [ _; ("-h" | "--help") ] -> print_endline usage_msg
 
   | [ _; jsonfile; _ ] -> 
-    (match Parser.load_json jsonfile with
-      | Ok _ -> print_endline "JSON ok"
+    (match Result.bind (Parser.load_json jsonfile) Parser.parse_machine with
+      | Ok _ -> print_endline "machine ok"
       | Error msg -> prerr_endline ("Error: " ^ msg); exit 1)
 
   | _ -> prerr_endline "Error: ft_turing expected 2 arguments (jsonfile input)\nTry './ft_turing --help' for more information"; exit 1

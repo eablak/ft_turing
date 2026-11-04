@@ -1,0 +1,39 @@
+{
+    "name": "utm_unary_add",
+    "alphabet": ["0", "1", "+", "=", ".", "A", "B", "C", "D", "R", "L", "#", "_"],
+    "blank": ".",
+    "states": ["fetch_rule", "match_state", "match_read", "execute_write", "execute_move", "update_state", "HALT"],
+    "initial": "fetch_rule",
+    "finals": ["HALT"],
+    "transitions": {
+        "fetch_rule": [
+            { "read": "A", "to_state": "match_state", "write": "A", "action": "RIGHT" },
+            { "read": "#", "to_state": "HALT", "write": "#", "action": "RIGHT" },
+            { "read": ".", "to_state": "HALT", "write": ".", "action": "RIGHT" }
+        ],
+        "match_state": [
+            { "read": "_", "to_state": "match_read", "write": "_", "action": "RIGHT" },
+            { "read": "A", "to_state": "match_state", "write": "A", "action": "RIGHT" },
+            { "read": "B", "to_state": "match_state", "write": "B", "action": "RIGHT" }
+        ],
+        "match_read": [
+            { "read": "1", "to_state": "execute_write", "write": "1", "action": "RIGHT" },
+            { "read": "+", "to_state": "execute_write", "write": "+", "action": "RIGHT" },
+            { "read": "_", "to_state": "execute_write", "write": "_", "action": "RIGHT" }
+        ],
+        "execute_write": [
+            { "read": "1", "to_state": "execute_move", "write": "1", "action": "RIGHT" },
+            { "read": "_", "to_state": "execute_move", "write": "_", "action": "RIGHT" }
+        ],
+        "execute_move": [
+            { "read": "R", "to_state": "update_state", "write": "R", "action": "RIGHT" },
+            { "read": "L", "to_state": "update_state", "write": "L", "action": "RIGHT" },
+            { "read": "_", "to_state": "update_state", "write": "_", "action": "RIGHT" }
+        ],
+        "update_state": [
+            { "read": "A", "to_state": "fetch_rule", "write": "A", "action": "LEFT" },
+            { "read": "B", "to_state": "fetch_rule", "write": "B", "action": "LEFT" },
+            { "read": "_", "to_state": "fetch_rule", "write": "_", "action": "LEFT" }
+        ]
+    }
+}

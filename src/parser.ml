@@ -1,5 +1,6 @@
 open Types
 
+
 let read_file path =
   try
     let ic = open_in_bin path in
@@ -13,6 +14,7 @@ let parse_json content =
   with Yojson.Json_error msg -> Error ("invalid JSON: " ^ msg)
 
 let load_json path = Result.bind (read_file path) parse_json
+
 
 let ( let* ) = Result.bind
 
@@ -91,3 +93,37 @@ let parse_machine json =
   let* finals = get_string_list "finals" json in
   let* transitions = parse_transitions json in
   Ok { name; alphabet; blank; states; initial; finals; transitions }
+
+
+let check cond msg = if cond then Ok () else Error msg
+let check_all checks = Result.map (fun _ -> ()) (all checks)
+
+let validate_transition m state t = 
+  let* () = check (List.mem t.read m.alphabet)
+    (Printf.sprintf "state '%s': read '%c' is not in 'alphabet'" state t.read) in
+  let* () = check (List.mem t.write m.alphabet)
+    (Printf.sprintf "state '%s': write '%c' is not in 'alphabet'" state t.write) in
+  check (List.mem t.to_state m.states)
+    (Printf.sprintf "state '%s': to_state '%s' is not in 'states'" state t.to_state)
+
+let validate_transitions m = 
+  let check_state (state, ts) = 
+    let* () = check (List.mem state m.states)
+      (Printf.sprintf "transitions: unknown state '%s'" state) in
+    check_all (List.map (validate_transition m state) ts) in
+  check_all (List.map check_state m.transitions)
+
+let validate_machine m = 
+  let* () = check (List.mem m.blank m.alphabet) "'blank' must be part of 'alphabet'" in
+  let* () = check (List.mem m.initial m.states)
+    (Printf.sprintf "initial state '%s' is not in 'states'" m.initial) in
+  let* () = check_all (List.map (fun f ->
+    check (List.mem f m.states)
+      (Printf.sprintf "final state '%s' is not in 'states'" f)) m.finals) in
+  let* () = validate_transitions m in
+  Ok m
+
+let load_machine path = 
+  let* json = load_json path in
+  let* m = parse_machine json in
+  validate_machine m

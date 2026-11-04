@@ -10,7 +10,7 @@ let () =
   | [ _; ("-h" | "--help") ] -> print_endline usage_msg
 
   | [ _; jsonfile; _ ] -> 
-    (match Result.bind (Parser.load_json jsonfile) Parser.parse_machine with
+    (match Parser.load_machine jsonfile with
       | Ok _ -> print_endline "machine ok"
       | Error msg -> prerr_endline ("Error: " ^ msg); exit 1)
 

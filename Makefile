@@ -1,6 +1,6 @@
 NAME		= ft_turing
 NAME_BYTE	= ft_turing_byte
-SRC			= src/types.ml src/parser.ml src/main.ml
+SRC			= src/types.ml src/parser.ml src/simulator.ml src/main.ml
 PKG			= yojson
 
 all: $(NAME)

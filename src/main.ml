@@ -15,7 +15,7 @@ let () =
     | Ok m ->
       (match Parser.validate_input m input with
       | Error msg -> prerr_endline ("Error: " ^ msg); exit 1
-      | Ok _ -> print_endline "input ok"))
+      | Ok _ -> Simulator.run m input))
 
   | _ -> prerr_endline "Error: ft_turing expected 2 arguments (jsonfile input)\nTry './ft_turing --help' for more information"; exit 1
 

@@ -22,3 +22,7 @@ type tape = {
   head  : char;
   right : char list;
 }
+
+type outcome = 
+  | Halted of { steps : int; tape : tape }
+  | Blocked of { steps : int; state : string; read : char }

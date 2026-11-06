@@ -91,22 +91,22 @@ let find_transition m state read_char =
   | None -> None
   | Some ts -> List.find_opt (fun t -> t.read = read_char) ts
 
-let run m input =
-  print_header m;
+let run ?(verbose = true) m input =
+  if verbose then print_header m;
   let initial_tape = make_tape m.blank input in
-  let rec loop state tape =
-    if List.mem state m.finals then
-      ()
-    else
-      match find_transition m state tape.head with
-      | None ->
-          Printf.eprintf "Error: Machine blocked! No transition found for state '%s' and character '%c'.\n"
-            state tape.head;
-          exit 1
+  let rec loop state tape steps =
+    if List.mem state m.finals then Halted { steps; tape }
+    else match find_transition m state tape.head with
+      | None -> Blocked { steps; state; read = tape.head }
       | Some t ->
-          print_step tape state t;
-          let next_tape = move_tape m.blank tape t.action t.write in
-          loop t.to_state next_tape
+        if verbose then print_step tape state t;
+        loop t.to_state (move_tape m.blank tape t.action t.write) (steps + 1)
   in
-  loop m.initial initial_tape
+  loop m.initial initial_tape 0
+
+let print_final tape =
+  Printf.printf "[%s<%c>%s] HALT\n"
+  (string_of_chars (List.rev tape.left))
+  tape.head
+  (string_of_chars tape.right)
 

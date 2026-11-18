@@ -2,6 +2,8 @@ open Types
 
 let width = 80
 let min_tape_len = 20
+let max_blank_run = 20
+let max_steps = 100000
 
 let string_of_direction = function
   | Left -> "LEFT"
@@ -94,15 +96,23 @@ let find_transition m state read_char =
 let run ?(verbose = true) m input =
   if verbose then print_header m;
   let initial_tape = make_tape m.blank input in
-  let rec loop state tape steps =
+  let rec loop state tape steps blank_run =
     if List.mem state m.finals then Halted { steps; tape }
+    else if blank_run >= max_blank_run || steps >= max_steps then
+      Blocked { steps; state; read = tape.head }
     else match find_transition m state tape.head with
       | None -> Blocked { steps; state; read = tape.head }
       | Some t ->
         if verbose then print_step tape state t;
-        loop t.to_state (move_tape m.blank tape t.action t.write) (steps + 1)
+        let at_edge_blank =
+          tape.head = m.blank &&
+          ((t.action = Right && List.for_all (( = ) m.blank) tape.right) ||
+           (t.action = Left  && List.for_all (( = ) m.blank) tape.left))
+        in
+        let next_blank_run = if at_edge_blank then blank_run + 1 else 0 in
+        loop t.to_state (move_tape m.blank tape t.action t.write) (steps + 1) next_blank_run
   in
-  loop m.initial initial_tape 0
+  loop m.initial initial_tape 0 0
 
 let print_final tape =
   Printf.printf "[%s<%c>%s] HALT\n"

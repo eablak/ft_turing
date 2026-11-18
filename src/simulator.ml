@@ -114,9 +114,3 @@ let run ?(verbose = true) m input =
   in
   loop m.initial initial_tape 0 0
 
-let print_final tape =
-  Printf.printf "[%s<%c>%s] HALT\n"
-  (string_of_chars (List.rev tape.left))
-  tape.head
-  (string_of_chars tape.right)
-

@@ -23,9 +23,7 @@ let () =
          | Error msg -> prerr_endline ("Error: " ^ msg); exit 1
          | Ok _ ->
           (match Simulator.run m input with
-          | Halted { steps; tape} ->
-              Simulator.print_final tape;
-              Printf.printf "Steps: %d\n" steps
+          | Halted _ -> ()
           | Blocked { steps; state; read } ->
               Printf.eprintf "Error: machine blocked at state '%s' reading '%c' after %d steps\n" state read steps;
               exit 1)))    
